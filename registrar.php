@@ -20,11 +20,13 @@ require_once('conexao_db.php');
 $resposta = array();
  
 // verifica se todos os campos necessários foram enviados ao servidor
-if (isset($_POST['novo_login']) && isset($_POST['nova_senha'])) {
+if (isset($_POST['novo_login']) && isset($_POST['nova_senha'])&& isset($_POST['novo_nome']) && isset($_POST['novo_email'])) {
  
     // o método trim elimina caracteres especiais/ocultos da string
 	$novo_login = trim($_POST['novo_login']);
 	$nova_senha = trim($_POST['nova_senha']);
+	$novo_nome = trim($_POST['novo_nome']);
+	$novo_email = $_POST['novo_email'];
 	
 	// o bd não armazena diretamente a senha do usuário, mas sim 
 	// um código hash que é gerado a partir da senha.
@@ -44,7 +46,7 @@ if (isset($_POST['novo_login']) && isset($_POST['nova_senha'])) {
 	}
 	else {
 		// se o usuário ainda não existe, inserimos ele no bd.
-		$consulta = $db_con->prepare("INSERT INTO usuarios(login, token) VALUES('$novo_login', '$token')");
+		$consulta = $db_con->prepare("INSERT INTO usuarios(login, token, nome, email) VALUES('$novo_login', '$token','$novo_nome','$novo_email')");
 	 
 		if ($consulta->execute()) {
 			// se a consulta deu certo, indicamos sucesso na operação.
