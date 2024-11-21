@@ -46,38 +46,56 @@ if(autenticar($db_con)) {
 		
 		$filename = $_FILES['img']['tmp_name'];
 		$client_id="ce5d3a656e2aa51";
-		$handle = fopen($filename, "r");
-		$data = fread($handle, filesize($filename));
-		$pvars   = array('image' => base64_encode($data));
-		$timeout = 30;
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, 'https://api.imgur.com/3/image.json');
-		curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Authorization: Client-ID ' . $client_id));
-		curl_setopt($curl, CURLOPT_POST, 1);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $pvars);
-		$out = curl_exec($curl);
-		curl_close ($curl);
-		$pms = json_decode($out,true);
-		$img_url=$pms['data']['link'];
 		
+		$curl = curl_init();
+		
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'https://api.imgur.com/3/image',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS => array('image'=> new CURLFILE($filename),'type' => 'file','title' => 'Simple upload','description' => 'This is a simple image upload in Imgur'),
+		  CURLOPT_HTTPHEADER => array(
+			'Authorization: Client-ID ' . $client_id
+		  ),
+		));
 
-		// A proxima linha insere um novo produto no BD.
-		// A variavel consulta indica se a insercao foi feita corretamente ou nao.
-		$consulta = $db_con->prepare("INSERT INTO produtos(nome, preco, descricao, img, usuarios_login) VALUES('$nome', '$preco', '$descricao', '$img_url', '$login')");
-		if ($consulta->execute()) {
-			// Se o produto foi inserido corretamente no servidor, o cliente 
-			// recebe a chave "sucesso" com valor 1
-			$resposta["sucesso"] = 1;
-		} else {
-			// Se o produto nao foi inserido corretamente no servidor, o cliente 
+		$imgur_response = curl_exec($curl);
+		$http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		curl_close($curl);
+		if($http_code == 200) {
+			
+			$imgur_response_json = json_decode($imgur_response, true);
+			$img_url=$imgur_response_json['data']['link'];
+			
+			// A proxima linha insere um novo produto no BD.
+			// A variavel consulta indica se a insercao foi feita corretamente ou nao.
+			$consulta = $db_con->prepare("INSERT INTO produtos(nome, preco, descricao, img, usuarios_login) VALUES('$nome', '$preco', '$descricao', '$img_url', '$login')");
+			if ($consulta->execute()) {
+				// Se o produto foi inserido corretamente no servidor, o cliente 
+				// recebe a chave "sucesso" com valor 1
+				$resposta["sucesso"] = 1;
+			} else {
+				// Se o produto nao foi inserido corretamente no servidor, o cliente 
+				// recebe a chave "sucesso" com valor 0. A chave "erro" indica o 
+				// motivo da falha.
+				$resposta["sucesso"] = 0;
+				$resposta["erro"] = "Erro ao criar produto no BD: " . $consulta->error;
+				$resposta["cod_erro"] = 2;
+			}
+		}
+		else {
+			// Se o envio da imagem para o IMGUR não funcionou, o cliente 
 			// recebe a chave "sucesso" com valor 0. A chave "erro" indica o 
 			// motivo da falha.
 			$resposta["sucesso"] = 0;
-			$resposta["erro"] = "Erro ao criar produto no BD: " . $consulta->error;
+			$resposta["erro"] = "Erro ao enviar a imagem para o IMGUR. HTTP CODE: " . $http_code;
 			$resposta["cod_erro"] = 2;
-		}
+		}	
 	} else {
 		// Se a requisicao foi feita incorretamente, ou seja, os parametros 
 		// nao foram enviados corretamente para o servidor, o cliente 
@@ -86,7 +104,6 @@ if(autenticar($db_con)) {
 		$resposta["sucesso"] = 0;
 		$resposta["erro"] = "Campo requerido nao preenchido";
 		$resposta["cod_erro"] = 3;
-		
 	}
 }
 else {
