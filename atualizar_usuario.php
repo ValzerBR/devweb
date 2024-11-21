@@ -20,15 +20,13 @@ require_once('autenticacao.php');
 // array de resposta
 $resposta = array();
  
-// verifica se todos os campos necessários foram enviados ao servidor
-// adicionado os novos parametros de nome e email para fazer a verificação dos dados 
+// verifica autenticação do usuário
 
 if(autenticar($db_con)){
     if (isset($_POST['novo_nome']) or isset($_POST['novo_email'])) {
         $login = trim($GLOBALS['login']);
         if (isset($_POST['novo_nome']) && isset($_POST['novo_email'])) { 
-            //        
-            // o método trim elimina caracteres especiais/ocultos da string
+            //usuario altera nome e email
             $novo_nome = trim($_POST['novo_nome']);
             $novo_email = $_POST['novo_email']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE usuarios SET nome='$novo_nome' , email='$novo_email' WHERE (login='$login')");
@@ -36,14 +34,14 @@ if(autenticar($db_con)){
             $resposta["erro"] = "nome e email atualizados";
         }
         elseif (isset($_POST['novo_nome'])) { 
-            // 
+            //usuario deseja alterar apenas nome 
             $novo_nome = trim($_POST['novo_nome']);
             $consulta = $db_con->prepare("UPDATE usuarios SET nome='$novo_nome' WHERE (login='$login')");
             $resposta["sucesso"] = 1;
             $resposta["erro"] = "nome atualizado";
         }
         elseif (isset($_POST['novo_email'])) { 
-            // 
+            //usuario altera email
             $novo_email = $_POST['novo_email']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE usuarios SET email='$novo_email' WHERE (login='$login')");
             $resposta["sucesso"] = 1;
@@ -53,7 +51,7 @@ if(autenticar($db_con)){
     }
 
     else {
-        // se não foram enviados todos os parâmetros para o servidor, 
+        // se não foram enviados nem email e nem nome para serem trocados, 
         // indicamos que não houve sucesso
         // na operação e o motivo no campo de erro.
         $resposta["sucesso"] = 0;
