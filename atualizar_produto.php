@@ -44,7 +44,7 @@ if(autenticar($db_con)){
         if (isset($_POST['nova_descricao'])) { 
             //usuario altera email
             $nova_descricao = $_POST['nova_descricao']; //email permite caracteres especiais
-            $consulta = $db_con->prepare("UPDATE produtos SET nome='$nova_descricao' WHERE (id='$id')");
+            $consulta = $db_con->prepare("UPDATE produtos SET descricao='$nova_descricao' WHERE (id='$id')");
             $consulta->execute();
             $resposta["sucesso"] = 1;
             $resposta["erro"] = "descricao atualizado";
