@@ -25,6 +25,7 @@ if (isset($_GET['id'])) {
  
     // o método trim elimina caracteres especiais/ocultos da string
 	$id = trim($_GET['id']);
+    // consulta produto de id especificado
     $consulta_produto = $db_con->prepare("SELECT nome, preco, descricao, usuarios_login, criado_em, img FROM produtos WHERE id='$id'");
 	$consulta_produto->execute();
 	if ($consulta_produto->rowCount() > 0) {

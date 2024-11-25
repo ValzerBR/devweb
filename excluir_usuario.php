@@ -23,6 +23,7 @@ $resposta = array();
 // verifica autenticação do usuário
 
 if(autenticar($db_con)){
+    // deleta proprio usuario
     $login = trim($GLOBALS['login']);
     $consulta = $db_con->prepare("DELETE FROM usuarios WHERE (login='$login')");
     $consulta->execute();

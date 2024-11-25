@@ -24,6 +24,7 @@ $resposta = array();
 
 if(autenticar($db_con)){   
     if (isset($_POST['id'])){
+        // deleta produto de id especificado
         $id = trim($_POST['id']);
         $consulta = $db_con->prepare("DELETE FROM produtos WHERE (id='$id')");
         $consulta->execute();
@@ -31,6 +32,7 @@ if(autenticar($db_con)){
         $resposta["erro"] = "produto excluído";
     }
     else{
+        // faltam parametros
         $resposta["sucesso"] = 0;
         $resposta["erro"] = "faltam parametros";
         $resposta["cod_erro"] = 3;

@@ -27,6 +27,7 @@ if(autenticar($db_con)){
         $nova_senha = trim($_POST['nova_senha']);
         $token = password_hash($nova_senha, PASSWORD_DEFAULT);
         $login = trim($GLOBALS['login']);
+        // altera para senha desejada
         $consulta = $db_con->prepare("UPDATE usuarios SET token='$token' WHERE (login='$login')");
         $consulta->execute();
         $resposta["sucesso"] = 1;

@@ -25,6 +25,7 @@ if (isset($_GET['login'])) {
  
     // o método trim elimina caracteres especiais/ocultos da string
 	$login = trim($_GET['login']);
+    // consulta usuario de login especificado
     $consulta_usuario = $db_con->prepare("SELECT nome, email FROM usuarios WHERE login='$login'");
 	$consulta_usuario->execute();
 	if ($consulta_usuario->rowCount() > 0) {

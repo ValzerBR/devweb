@@ -26,7 +26,7 @@ if(autenticar($db_con)){
     if (isset($_POST['id']) && ((isset($_POST['novo_nome'])) or (isset($_POST['novo_preco'])) or (isset($_POST['nova_descricao'])) or (isset($_POST['nova_img'])))) {
         $id = trim($_POST['id']);
         if (isset($_POST['novo_nome'])) { 
-            //usuario altera nome e email
+            //usuario altera nome 
             $novo_nome = trim($_POST['novo_nome']);
             $consulta = $db_con->prepare("UPDATE produtos SET nome='$novo_nome' WHERE (id='$id')");
             $consulta->execute();
@@ -34,7 +34,7 @@ if(autenticar($db_con)){
             $resposta["erro"] = "nome do produto atualizado";
         }
         if (isset($_POST['novo_preco'])) { 
-            //usuario deseja alterar apenas nome 
+            //usuario deseja alterar preco 
             $novo_preco = trim($_POST['novo_preco']);
             $consulta = $db_con->prepare("UPDATE produtos SET preco ='$novo_preco' WHERE (id='$id')");
             $consulta->execute();
@@ -42,7 +42,7 @@ if(autenticar($db_con)){
             $resposta["erro"] = "preco atualizado";
         }
         if (isset($_POST['nova_descricao'])) { 
-            //usuario altera email
+            //usuario altera descricao
             $nova_descricao = $_POST['nova_descricao']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE produtos SET descricao='$nova_descricao' WHERE (id='$id')");
             $consulta->execute();
@@ -50,7 +50,7 @@ if(autenticar($db_con)){
             $resposta["erro"] = "descricao atualizado";
         }
         if (isset($_POST['nova_img'])) { 
-            //usuario altera email
+            //usuario altera img
             $nova_img = $_POST['nova_img']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE produtos SET nova_img='$nova_img' WHERE (id='$id')");
             $consulta->execute();
@@ -60,7 +60,7 @@ if(autenticar($db_con)){
     }
 
     else {
-        // se não foram enviados nem email e nem nome para serem trocados, 
+        // se não foram enviados nada para serem trocados, 
         // indicamos que não houve sucesso
         // na operação e o motivo no campo de erro.
         $resposta["sucesso"] = 0;
