@@ -28,7 +28,6 @@ if(autenticar($db_con)){
     $consulta = $db_con->prepare("DELETE FROM usuarios WHERE (login='$login')");
     $consulta->execute();
     $resposta["sucesso"] = 1;
-    $resposta["erro"] = "usuário excluído";
 }
 else {
 	// senha ou usuario nao confere

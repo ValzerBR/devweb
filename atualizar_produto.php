@@ -30,33 +30,26 @@ if(autenticar($db_con)){
             $novo_nome = trim($_POST['novo_nome']);
             $consulta = $db_con->prepare("UPDATE produtos SET nome='$novo_nome' WHERE (id='$id')");
             $consulta->execute();
-            $resposta["sucesso"] = 1;
-            $resposta["erro"] = "nome do produto atualizado";
         }
         if (isset($_POST['novo_preco'])) { 
             //usuario deseja alterar preco 
             $novo_preco = trim($_POST['novo_preco']);
             $consulta = $db_con->prepare("UPDATE produtos SET preco ='$novo_preco' WHERE (id='$id')");
             $consulta->execute();
-            $resposta["sucesso"] = 1;
-            $resposta["erro"] = "preco atualizado";
         }
         if (isset($_POST['nova_descricao'])) { 
             //usuario altera descricao
             $nova_descricao = $_POST['nova_descricao']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE produtos SET descricao='$nova_descricao' WHERE (id='$id')");
             $consulta->execute();
-            $resposta["sucesso"] = 1;
-            $resposta["erro"] = "descricao atualizado";
         }
         if (isset($_POST['nova_img'])) { 
             //usuario altera img
             $nova_img = $_POST['nova_img']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE produtos SET nova_img='$nova_img' WHERE (id='$id')");
             $consulta->execute();
-            $resposta["sucesso"] = 1;
-            $resposta["erro"] = "img atualizado";
         }
+        $resposta["sucesso"] = 1;
     }
 
     else {
