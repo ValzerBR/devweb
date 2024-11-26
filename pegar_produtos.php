@@ -1,15 +1,7 @@
 <?php
-
+ 
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: *");
-
-/*
- * O seguinte codigo retorna para o cliente a lista de produtos 
- * armazenados no servidor. Essa e uma requisicao do tipo GET. 
- * Devem ser enviados os parâmetro de limit e offset para 
- * realização da paginação de dados no cliente.
- * A resposta e no formato JSON.
- */
  
 /*
  * 
@@ -22,90 +14,62 @@ header("Access-Control-Allow-Headers: *");
  * 
  */
 
-// conexão com bd
 require_once('conexao_db.php');
 
-// autenticação
-require_once('autenticacao.php');
-
-// array for JSON resposta
+// array de resposta
 $resposta = array();
-
-// verifica se o usuário conseguiu autenticar
-if(autenticar($db_con)) {
-	
-	// Primeiro, verifica-se se todos os parametros foram enviados pelo cliente.
-	// limit - quantidade de produtos a ser entregues
-	// offset - indica a partir de qual produto começa a lista
-	if (isset($_GET['limit']) && isset($_GET['offset'])) {
-	 
-		$limit = $_GET['limit'];
-		$offset = $_GET['offset'];
  
-		// Realiza uma consulta ao BD e obtem todos os produtos.
-		$consulta = $db_con->prepare("SELECT * FROM produtos LIMIT " . $limit . " OFFSET " . $offset);
-		if($consulta->execute()) {
-			
-			$nProdutos = $db_con->query("SELECT COUNT(*) FROM produtos")->fetchColumn(); 
-			
-			// Caso existam produtos no BD, eles sao armazenados na 
-			// chave "produtos". O valor dessa chave e formado por um 
-			// array onde cada elemento e um produto.
-			$resposta["produtos"] = array();
-			$resposta["sucesso"] = 1;
-			$resposta["qtde_produtos"] = $nProdutos;
-
-			if ($consulta->rowCount() > 0) {
-				while ($linha = $consulta->fetch(PDO::FETCH_ASSOC)) {
-					// Para cada produto, sao retornados somente o 
-					// pid (id do produto), o nome do produto e o preço. Nao ha necessidade 
-					// de retornar nesse momento todos os campos dos produtos 
-					// pois a app cliente, inicialmente, so precisa do nome e preço do mesmo para 
-					// exibir na lista de produtos. O campo id e usado pela app cliente 
-					// para buscar os detalhes de um produto especifico quando o usuario 
-					// o seleciona. Esse tipo de estrategia poupa banda de rede, uma vez 
-					// os detalhes de um produto somente serao transferidos ao cliente 
-					// em caso de real interesse.
-					$produto = array();
-					$produto["id"] = $linha["id"];
-					$produto["nome"] = $linha["nome"];
-					$produto["preco"] = $linha["preco"];
-					$produto["img"] = $linha["img"];
-			 
-					// Adiciona o produto no array de produtos.
-					array_push($resposta["produtos"], $produto);
-				}
-			}
-		}
-		else {
-			// Caso ocorra falha no BD, o cliente 
-			// recebe a chave "sucesso" com valor 0. A chave "erro" indica o 
-			// motivo da falha.
-			$resposta["sucesso"] = 0;
-			$resposta["erro"] = "Erro no BD: " . $consulta->error;
-			$resposta["cod_erro"] = 2;
-		}
-	}
-	else {
-		// Se a requisicao foi feita incorretamente, ou seja, os parametros 
-		// nao foram enviados corretamente para o servidor, o cliente 
-		// recebe a chave "sucesso" com valor 0. A chave "erro" indica o 
-		// motivo da falha.
-		$resposta["sucesso"] = 0;
-		$resposta["erro"] = "Campo requerido não preenchido";
-		$resposta["cod_erro"] = 3;
-	}
+// verifica se todos os campos necessários foram enviados ao servidor
+// adicionado os novos parametros de nome e email para fazer a verificação dos dados 
+if (isset($_GET['limit']) && (isset($_GET['offset']))){
+    $limit = $_GET['limit'];
+    $offset = $_GET['offset'];
+    if (isset($_GET['login'])) { 
+        $login = $_GET['login']; 
+        //usuario definiu login que deseja filtrar produtos
+        $consulta_produto = $db_con->prepare("SELECT nome, preco, descricao, usuarios_login, criado_em, 
+		img FROM produtos WHERE usuarios_login ='$login' LIMIT ' $limit' OFFSET ' $offset'");
+        $consulta_produto->execute();
+        if ($consulta_produto->rowCount() > 0) {
+            $resposta["sucesso"] = 1;
+            $dados_produto = $consulta_produto->fetchAll(PDO::FETCH_ASSOC);
+            $resposta["produtos"] = $dados_produto;
+        }
+        else{
+            $resposta["sucesso"] = 0;
+            $resposta["erro"] = "usuario não existe ou não possui produtos cadastrados";
+            $resposta["cod_erro"] = 4;
+        }
+    }
+    else{
+        $consulta_produto = $db_con->prepare("SELECT nome, preco, descricao, usuarios_login, criado_em, 
+        img FROM produtos LIMIT ' $limit' OFFSET ' $offset'");
+        $consulta_produto->execute();
+        if ($consulta_produto->rowCount() > 0) {
+            $resposta["sucesso"] = 1;
+            $dados_produto = $consulta_produto->fetchAll(PDO::FETCH_ASSOC);
+            $resposta["produtos"] = $dados_produto;
+        }
+        else{
+            $resposta["sucesso"] = 0;
+            $resposta["erro"] = "nenhum produto cadastrado";
+            $resposta["cod_erro"] = 4;
+        }
+    }
 }
 else {
-	// senha ou usuario nao confere
-	$resposta["sucesso"] = 0;
-	$resposta["erro"] = "usuario ou senha não confere";
-	$resposta["cod_erro"] = 0;
+	// se não foram enviados todos os parâmetros para o servidor, 
+	// indicamos que não houve sucesso
+	// na operação e o motivo no campo de erro.
+    $resposta["sucesso"] = 0;
+	$resposta["erro"] = "faltam parametros";
+	$resposta["cod_erro"] = 3;
 }
 
-// fecha conexão com o bd
+// A conexão com o bd sempre tem que ser fechada
 $db_con = null;
 
-// Converte a resposta para o formato JSON.
+// converte o array de resposta em uma string no formato JSON e 
+// imprime na tela.
 echo json_encode($resposta);
 ?>
