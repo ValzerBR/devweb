@@ -31,21 +31,18 @@ if(autenticar($db_con)){
             $novo_email = $_POST['novo_email']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE usuarios SET nome='$novo_nome' , email='$novo_email' WHERE (login='$login')");
             $resposta["sucesso"] = 1;
-            $resposta["erro"] = "nome e email atualizados";
         }
         elseif (isset($_POST['novo_nome'])) { 
             //usuario deseja alterar apenas nome 
             $novo_nome = trim($_POST['novo_nome']);
             $consulta = $db_con->prepare("UPDATE usuarios SET nome='$novo_nome' WHERE (login='$login')");
             $resposta["sucesso"] = 1;
-            $resposta["erro"] = "nome atualizado";
         }
         elseif (isset($_POST['novo_email'])) { 
             //usuario altera email
             $novo_email = $_POST['novo_email']; //email permite caracteres especiais
             $consulta = $db_con->prepare("UPDATE usuarios SET email='$novo_email' WHERE (login='$login')");
             $resposta["sucesso"] = 1;
-            $resposta["erro"] = "email atualizado";
         }
         $consulta->execute();
     }
