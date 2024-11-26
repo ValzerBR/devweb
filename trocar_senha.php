@@ -31,7 +31,6 @@ if(autenticar($db_con)){
         $consulta = $db_con->prepare("UPDATE usuarios SET token='$token' WHERE (login='$login')");
         $consulta->execute();
         $resposta["sucesso"] = 1;
-        $resposta["erro"] = "senha alterada";
         }
 
     else {
