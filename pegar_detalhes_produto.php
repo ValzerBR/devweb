@@ -21,22 +21,43 @@ $resposta = array();
  
 // verifica se todos os campos necessários foram enviados ao servidor
 // adicionado os novos parametros de nome e email para fazer a verificação dos dados 
-if (isset($_GET['id'])) {
- 
-    // o método trim elimina caracteres especiais/ocultos da string
-	$id = trim($_GET['id']);
-    // consulta produto de id especificado
-    $consulta_produto = $db_con->prepare("SELECT nome, preco, descricao, usuarios_login, criado_em, img FROM produtos WHERE id='$id'");
-	$consulta_produto->execute();
-	if ($consulta_produto->rowCount() > 0) {
-        $resposta["sucesso"] = 1;
-        $dados_produto = $consulta_produto->fetch(PDO::FETCH_ASSOC);
-        $resposta["produto"] = $dados_produto;
+if (isset($_GET['limit']) && (isset($_GET['offset']))){
+    $limit = $_GET['limit'];
+    $offset = $_GET['offset'];
+    if (isset($_GET['login'])) { 
+        $login = $_GET['login']; 
+        //ex : SELECT * FROM produtos WHERE usuarios_login = 'daniel' LIMIT 2 OFFSET 0
+        $consulta_produto = $db_con->prepare("SELECT nome, preco, descricao, usuarios_login, criado_em, 
+        img FROM produtos WHERE usuarios_login ='$login' LIMIT ' $limit' OFFSET ' $offset'");
+        $consulta_produto->execute();
+        if ($consulta_produto->rowCount() > 0) {
+            $resposta["sucesso"] = 1;
+            $dados_produto = $consulta_produto->fetchAll(PDO::FETCH_ASSOC);
+            $resposta["produtos"] = $dados_produto;
+        }
+        else{
+            $resposta["sucesso"] = 0;
+            $resposta["erro"] = "usuario não existe ou não possui produtos caadastrados";
+            $resposta["cod_erro"] = 4;
+        }
     }
     else{
-        $resposta["sucesso"] = 0;
-        $resposta["erro"] = "produto nao encontrado";
-        $resposta["cod_erro"] = 4;
+        // o método trim elimina caracteres especiais/ocultos da string
+        $id = trim($_GET['id']);
+        // consulta produto de id especificado
+        $consulta_produto = $db_con->prepare("SELECT nome, preco, descricao, usuarios_login, criado_em, 
+        img FROM produtos LIMIT ' $limit' OFFSET ' $offset'");
+        $consulta_produto->execute();
+        if ($consulta_produto->rowCount() > 0) {
+            $resposta["sucesso"] = 1;
+            $dados_produto = $consulta_produto->fetchAll(PDO::FETCH_ASSOC);
+            $resposta["produtos"] = $dados_produto;
+        }
+        else{
+            $resposta["sucesso"] = 0;
+            $resposta["erro"] = "nenhum produto cadastrado";
+            $resposta["cod_erro"] = 4;
+        }
     }
 }
 else {
