@@ -37,7 +37,7 @@ if(autenticar($db_con)){
         else{
             $resposta["sucesso"] = 0;
             $resposta["erro"] = "usuario nao criou produto ou id nao encontrado";
-            $resposta["cod_erro"] = 3;
+            $resposta["cod_erro"] = 4;
         }
     }
     else{
