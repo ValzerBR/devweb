@@ -31,7 +31,8 @@ if (isset($_GET['login'])) {
 	if ($consulta_usuario->rowCount() > 0) {
         $resposta["sucesso"] = 1;
         $dados_usuario = $consulta_usuario->fetch(PDO::FETCH_ASSOC);
-        $resposta["usuario"] = $dados_usuario;
+        $resposta["nome"] = $dados_usuario['nome'];
+        $resposta["email"] = $dados_usuario['email'];
     }
     else{
         $resposta["sucesso"] = 0;

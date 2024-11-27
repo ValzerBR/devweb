@@ -30,7 +30,12 @@ if (isset($_GET['id'])) {
 	if ($consulta_produto->rowCount() > 0) {
         $resposta["sucesso"] = 1;
         $dados_produto = $consulta_produto->fetch(PDO::FETCH_ASSOC);
-        $resposta["produto"] = $dados_produto;
+        $resposta["nome"] = $dados_produto["nome"];
+        $resposta["preco"] = $dados_produto["preco"];
+        $resposta["descricao"] = $dados_produto["descricao"];
+        $resposta["criado_por"] = $dados_produto["usuarios_login"];
+        $resposta["criado_em"] = $dados_produto["criado_em"];
+        $resposta["img"] = $dados_produto["img"];
     }
     else{
         $resposta["sucesso"] = 0;
